@@ -19,6 +19,7 @@ dotenv.config();
 router.get('/', async ({res}) => {
 	try {
 		const home = await User.find({vis: false, cid: { "$nin": [995625] }}).select('-email -idsToken -discordInfo').sort({
+			rating: 'desc',
 			lname: 'asc',
 			fname: 'asc'
 		}).populate({
@@ -43,6 +44,7 @@ router.get('/', async ({res}) => {
 		}).lean({virtuals: true});
 	
 		const visiting = await User.find({vis: true}).select('-email -idsToken -discordInfo').sort({
+			rating: 'desc',
 			lname: 'asc',
 			fname: 'asc'
 		}).populate({
@@ -143,7 +145,13 @@ router.get('/staff', async (req, res) => {
 				code: "instructors",
 				users: []
 			},
+			dta: {
+				title: "Deputy Training Administrator",
+				code: "dta",
+				users: []
+			},
 		};
+
 		users.forEach(user => user.roleCodes.forEach(role => staff[role].users.push(user)));
 
 		res.stdRes.data = staff;
@@ -394,7 +402,7 @@ router.get('/stats/:cid', async (req, res) => {
 	
 		const getMonthYearString = date => date.toFormat('LLL yyyy');
 	
-		for(let i = 0; i < 12; i++) {
+		for(let i = 0; i < 13; i++) {
 			const theMonth = today.minus({months: i});
 			const ms = getMonthYearString(theMonth)
 			hours[ms] = {
@@ -463,22 +471,22 @@ router.post('/visit', getUser, async (req, res) => {
 		await transporter.sendMail({
 			to: req.body.email,
 			from: {
-				name: "Miami ARTCC",
-				address: 'no-reply@zmaartcc.net'
+				name: "Albuquerque ARTCC",
+				address: 'noreply@zabartcc.org'
 			},
-			subject: `Visiting Application Received | Miami ARTCC`,
+			subject: `Visiting Application Received | Albuquerque ARTCC`,
 			template: 'visitReceived',
 			context: {
 				name: `${res.user.fname} ${res.user.lname}`,
 			}
 		});
 		await transporter.sendMail({
-			to: 'atm@zmaartcc.net, datm@zmaartcc.net',
+			to: 'atm@zabartcc.org, datm@zabartcc.org',
 			from: {
-				name: "Miami ARTCC",
-				address: 'no-reply@zmaartcc.net'
+				name: "Albuquerque ARTCC",
+				address: 'noreply@zabartcc.org'
 			},
-			subject: `New Visiting Application: ${res.user.fname} ${res.user.lname} | Miami ARTCC`,
+			subject: `New Visiting Application: ${res.user.fname} ${res.user.lname} | Albuquerque ARTCC`,
 			template: 'staffNewVisit',
 			context: {
 				user: userData
@@ -528,10 +536,10 @@ router.put('/visit/:cid', getUser, auth(['atm', 'datm']), async (req, res) => {
 		await transporter.sendMail({
 			to: user.email,
 			from: {
-				name: "Miami ARTCC",
-				address: 'no-reply@zmaartcc.net'
+				name: "Albuquerque ARTCC",
+				address: 'noreply@zabartcc.org'
 			},
-			subject: `Visiting Application Accepted | Miami ARTCC`,
+			subject: `Visiting Application Accepted | Albuquerque ARTCC`,
 			template: 'visitAccepted',
 			context: {
 				name: `${user.fname} ${user.lname}`,
@@ -564,10 +572,10 @@ router.delete('/visit/:cid', getUser, auth(['atm', 'datm']), async (req, res) =>
 		await transporter.sendMail({
 			to: user.email,
 			from: {
-				name: "Miami ARTCC",
-				address: 'no-reply@zmaartcc.net'
+				name: "Albuquerque ARTCC",
+				address: 'noreply@zabartcc.org'
 			},
-			subject: `Visiting Application Rejected | Miami ARTCC`,
+			subject: `Visiting Application Rejected | Albuquerque ARTCC`,
 			template: 'visitRejected',
 			context: {
 				name: `${user.fname} ${user.lname}`,
@@ -610,7 +618,7 @@ router.post('/:cid', microAuth, async (req, res) => {
 		const {data} = await axios.get(`https://ui-avatars.com/api/?name=${userOi}&size=256&background=122049&color=ffffff`, {responseType: 'arraybuffer'});
 
 		await req.app.s3.putObject({
-			Bucket: 'zma-web/avatars',
+			Bucket: 'zabartcc/avatars',
 			Key: `${req.body.cid}-default.png`,
 			Body: data,
 			ContentType: 'image/png',
@@ -627,12 +635,12 @@ router.post('/:cid', microAuth, async (req, res) => {
 		const ratings = ['Unknown', 'OBS', 'S1', 'S2', 'S3', 'C1', 'C2', 'C3', 'I1', 'I2', 'I3', 'SUP', 'ADM'];
 
 		await transporter.sendMail({
-			to: "atm@zmaartcc.net; datm@zmaartcc.net; ta@zmaartcc.net",
+			to: "atm@zabartcc.org; datm@zabartcc.org; ta@zabartcc.org",
 			from: {
-				name: "Miami ARTCC",
-				address: 'no-reply@zmaartcc.net'
+				name: "Albuquerque ARTCC",
+				address: 'noreply@zabartcc.org'
 			},
-			subject: `New ${req.body.vis ? 'Visitor' : 'Member'}: ${req.body.fname} ${req.body.lname} | Miami ARTCC`,
+			subject: `New ${req.body.vis ? 'Visitor' : 'Member'}: ${req.body.fname} ${req.body.lname} | Albuquerque ARTCC`,
 			template: 'newController',
 			context: {
 				name: `${req.body.fname} ${req.body.lname}`,
@@ -641,7 +649,7 @@ router.post('/:cid', microAuth, async (req, res) => {
 				rating: ratings[req.body.rating],
 				vis: req.body.vis,
 				type: req.body.vis ? 'visitor' : 'member',
-				home: req.body.vis ? req.body.homeFacility : 'ZMA'
+				home: req.body.vis ? req.body.homeFacility : 'ZAB'
 			}
 		});
 
@@ -753,7 +761,7 @@ router.put('/:cid', getUser, auth(['atm', 'datm', 'ta', 'fe', 'ec', 'wm', 'ins',
 		const {data} = await axios.get(`https://ui-avatars.com/api/?name=${oi}&size=256&background=122049&color=ffffff`, {responseType: 'arraybuffer'});
 
 		await req.app.s3.putObject({
-			Bucket: 'zma-web/avatars',
+			Bucket: 'zabartcc/avatars',
 			Key: `${req.params.cid}-default.png`,
 			Body: data,
 			ContentType: 'image/png',
@@ -799,7 +807,7 @@ router.delete('/:cid', getUser, auth(['atm', 'datm']), async (req, res) => {
 		});
 
 		if(user.vis) {
-			await axios.delete(`https://api.vatusa.net/v2/facility/ZAB/roster/manageVisitor/${req.params.cid}`, {
+			await axios.delete(`https://api.vatusa.net/v2/facility/ZMA/roster/manageVisitor/${req.params.cid}`, {
 				params: {
 					apikey: process.env.VATUSA_API_KEY,
 				},
@@ -808,7 +816,7 @@ router.delete('/:cid', getUser, auth(['atm', 'datm']), async (req, res) => {
 				}
 			});
 		} else {
-			await axios.delete(`https://api.vatusa.net/v2/facility/ZAB/roster/${req.params.cid}`, {
+			await axios.delete(`https://api.vatusa.net/v2/facility/ZMA/roster/${req.params.cid}`, {
 				params: {
 					apikey: process.env.VATUSA_API_KEY,
 				},

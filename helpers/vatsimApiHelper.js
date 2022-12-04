@@ -1,4 +1,4 @@
-j// Helper class to communicate with VATSIM API 
+j// Helper class to communicate with VATSIM API  
 
 import axios from "axios";
 

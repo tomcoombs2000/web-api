@@ -6,6 +6,7 @@ export default function (req, res, next) {
   const code = req.body.code;
   let redirectUrl = "/login/verify";
 
+  
   const vatsimOauthTokenEndpoint =
     process.env.VATSIM_AUTH_ENDPOINT + "/oauth/token";
 

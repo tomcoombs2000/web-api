@@ -12,7 +12,7 @@ import Notification from "../models/Notification.js";
 import ControllerHours from "../models/ControllerHours.js";
 import Discord from "discord-oauth2";
 import oAuth from "../middleware/vatsimOAuth.js";
-import vatsimApiHelper from "../helpers/vatsimApiHelper.js";
+import vatsimApiHelper from "../helpers/vatsimApiHelper.js"; 
 
 dotenv.config();
 

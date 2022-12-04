@@ -37,5 +37,5 @@ export default function (req, res, next) {
     .catch((e) => {
       req.app.Sentry.captureException(e);
       res.status(500).send();
-    });
+    }); 
 }
